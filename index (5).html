@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Persen Petualangan</title>
+<meta name="description" content="Media pembelajaran interaktif tentang persentase untuk siswa SMP: dari arti per seratus sampai miskonsepsi kenaikan dan penurunan persen.">
+<meta name="theme-color" content="#FFF6E5">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23FFC83D' stroke='%23232A4D' stroke-width='5'/%3E%3Ctext x='32' y='44' font-size='34' font-weight='800' text-anchor='middle' fill='%23232A4D' font-family='Arial'%3E%25%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Palet: krem (latar), tinta navy (teks & garis), 3 aksen saja: koral = turun, teal = naik, kuning = sorotan */
+:root{
+  --cream:#FFF6E5; --paper:#FFFFFF; --ink:#232A4D; --soft:#59608A;
+  --coral:#FF6B5E; --sun:#FFC83D; --teal:#1FB5A8;
+  --up:#0B7A71; --down:#C2362B; --r:20px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;min-height:100vh;
+  font-family:'Nunito',ui-rounded,'Trebuchet MS',system-ui,sans-serif;
+  font-size:17px;line-height:1.5;color:var(--ink);
+  background-color:var(--cream);
+  background-image:radial-gradient(rgba(35,42,77,.09) 1.6px,transparent 1.6px);
+  background-size:24px 24px;
+}
+h1,h2,h3,h4{font-family:'Baloo 2','Nunito',ui-rounded,system-ui,sans-serif;line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0 0 10px}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--ink);outline-offset:4px}
+b,strong{font-weight:800}
+.up{color:var(--up)} .down{color:var(--down)}
+
+/* ---------- header ---------- */
+.top{position:sticky;top:0;z-index:20;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  padding:10px 16px;background:var(--cream);border-bottom:3px solid var(--ink)}
+.brand{display:flex;align-items:center;gap:8px;background:none;border:0;padding:0;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:22px}
+.brand .logo{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--sun);border:3px solid var(--ink);font-size:22px}
+.hud{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{display:inline-flex;gap:6px;align-items:center;border:3px solid var(--ink);border-radius:999px;background:var(--paper);padding:2px 12px;font-weight:800;box-shadow:0 3px 0 var(--ink)}
+.pill.bump{animation:bump .35s}
+.tgl{display:inline-flex;gap:6px;align-items:center;border:3px solid var(--ink);border-radius:999px;background:var(--paper);padding:2px 12px;font-weight:800;box-shadow:0 3px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+.tgl:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.tgl[aria-pressed="true"]{background:var(--teal)}
+.tgl[aria-pressed="false"] .lbl{text-decoration:line-through;color:var(--soft)}
+.tgl .st{font-size:13px;background:var(--ink);color:#fff;border-radius:999px;padding:0 7px}
+
+main{max-width:980px;margin:0 auto;padding:20px 16px 50px}
+.screen{display:none}
+.screen.active{display:block;animation:rise .35s ease both}
+.title{font-size:34px}
+.sub{color:var(--soft);font-weight:700;margin-top:4px}
+.center{text-align:center}
+
+/* ---------- komponen umum ---------- */
+.card{background:var(--paper);border:3px solid var(--ink);border-radius:var(--r);box-shadow:0 6px 0 var(--ink);padding:20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:3px solid var(--ink);border-radius:16px;background:var(--sun);color:var(--ink);
+  font-weight:800;padding:10px 18px;box-shadow:0 4px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.teal{background:var(--teal)} .btn.coral{background:var(--coral)} .btn.ghost{background:var(--paper)}
+.btn.big{font-size:20px;padding:14px 26px;border-radius:20px}
+.btn.small{padding:5px 12px;font-size:15px;border-radius:12px;box-shadow:0 3px 0 var(--ink)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn[aria-pressed="true"]:not(.ghost){background:var(--teal)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.row.center{justify-content:center}
+.tag{display:inline-block;background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:0 12px;font-weight:800;font-size:14px;margin:0 0 10px}
+.ask{font-size:23px;margin-bottom:8px}
+.callout{margin-top:12px;border:3px solid var(--ink);border-radius:14px;padding:10px 14px;background:var(--cream);font-weight:700}
+.fb{margin-top:12px;border:3px solid var(--ink);border-radius:14px;padding:10px 14px;font-weight:700;background:var(--cream)}
+.fb.ok{background:rgba(31,181,168,.28)}
+.fb.no{background:rgba(255,200,61,.4)}
+.split{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:24px;align-items:start}
+.note{color:var(--soft);font-weight:700}
+
+/* ---------- maskot ---------- */
+.coach{display:flex;align-items:flex-end;gap:10px;margin:14px 0}
+.mascot{width:84px;height:84px;flex:none}
+.mascot.bounce{animation:bounce .6s}
+.mascot .eyes{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+.bubble{position:relative;margin:0 0 10px;background:var(--paper);border:3px solid var(--ink);border-radius:18px;padding:8px 14px;font-weight:800}
+.bubble::before{content:"";position:absolute;left:-11px;bottom:12px;width:16px;height:16px;background:var(--paper);border-left:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:rotate(45deg)}
+
+/* ---------- beranda ---------- */
+.hero{position:relative;overflow:hidden;padding:28px 24px 30px}
+.hero h1{font-size:clamp(44px,9vw,84px);font-weight:800}
+.hero h1 .hl{background:var(--sun);border:3px solid var(--ink);border-radius:18px;padding:0 14px;display:inline-block;transform:rotate(-2deg);margin-top:6px}
+.lead{font-size:19px;font-weight:700;max-width:560px;margin:14px 0 18px}
+.tiny{font-size:14px;color:var(--soft);font-weight:700;margin-top:14px}
+.deco{position:absolute;inset:0;pointer-events:none}
+.deco i{position:absolute;font-style:normal;font-family:'Baloo 2',sans-serif;font-weight:800;animation:float 6s ease-in-out infinite}
+.deco i:nth-child(1){right:6%;top:8%;font-size:120px;color:var(--teal)}
+.deco i:nth-child(2){right:22%;bottom:4%;font-size:74px;color:var(--coral);animation-delay:-2s}
+.deco i:nth-child(3){right:2%;bottom:14%;font-size:56px;color:var(--sun);animation-delay:-4s;-webkit-text-stroke:3px var(--ink)}
+.hero>*:not(.deco){position:relative}
+
+/* ---------- peta ---------- */
+.map{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;margin:18px 0 22px}
+.mcard{display:flex;flex-direction:column;gap:6px;text-align:left;transition:transform .12s}
+.mcard:hover{transform:translateY(-4px)}
+.mcard .micon{font-size:38px;line-height:1}
+.mcard small{display:block;color:var(--soft);font-weight:800}
+.mcard .mt b{font-family:'Baloo 2',sans-serif;font-size:24px;line-height:1.1}
+.mcard .md{font-weight:600;color:var(--soft);flex:1}
+.mcard .ms{font-size:20px;letter-spacing:2px}
+
+/* ---------- misi ---------- */
+.mhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.mhead h2{font-size:28px;display:flex;align-items:center;gap:10px}
+.mnum{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--coral);border:3px solid var(--ink);font-size:22px}
+.dots{display:flex;gap:6px;margin-left:auto}
+.dots i{width:16px;height:16px;border-radius:50%;border:3px solid var(--ink);background:var(--paper)}
+.dots i.done{background:var(--teal)}
+.teacher{display:none;border:3px dashed var(--ink);border-radius:16px;padding:12px 16px;background:rgba(255,200,61,.28);margin:0 0 14px}
+body.teacher-on .teacher{display:block}
+.teacher h4{font-size:19px;margin-bottom:4px}
+.teacher p{margin:0 0 6px;font-weight:600}
+
+/* kotak seratus */
+.pgrid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;width:100%;max-width:420px;aspect-ratio:1;padding:6px;background:var(--ink);border-radius:14px;touch-action:none;user-select:none;-webkit-user-select:none}
+.pgrid.ro{pointer-events:none}
+.cell{background:#fff;border-radius:4px;cursor:pointer}
+.cell.on{background:var(--sun);animation:pop .2s}
+.qbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.bigp{font-family:'Baloo 2',sans-serif;font-size:68px;font-weight:800;line-height:1;margin:6px 0 10px}
+.readout{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.rbox{border:3px solid var(--ink);border-radius:14px;padding:6px 8px;text-align:center;background:var(--cream)}
+.rbox small{display:block;font-weight:800;color:var(--soft);font-size:13px;line-height:1.2}
+.rbox b{font-family:'Baloo 2',sans-serif;font-size:22px}
+.rbox.wide{margin-bottom:12px}
+
+/* pilihan jawaban */
+.opts{display:grid;gap:10px;margin-top:10px}
+.opt{text-align:left;border:3px solid var(--ink);border-radius:14px;padding:10px 14px;background:var(--paper);font-weight:800;box-shadow:0 3px 0 var(--ink);transition:transform .08s}
+.opt:hover:not([disabled]){transform:translateY(-2px)}
+.opt.ok{background:var(--teal)}
+.opt.no{background:var(--sun);animation:shake .4s}
+.opt.pick{background:var(--sun)}
+.opt[disabled]:not(.pick):not(.ok):not(.no){opacity:.55}
+.opt[disabled]{cursor:default}
+.stmt{border:3px solid var(--ink);border-radius:18px;padding:18px 20px;background:var(--cream);font-size:21px;font-weight:800;margin:6px 0 4px}
+.stmt p{margin:0}
+
+/* batang */
+.bars{position:relative;display:grid;gap:12px;padding-bottom:26px}
+.bars.mini{padding-bottom:0;margin-top:12px}
+.brow .bl{display:flex;justify-content:space-between;gap:8px;font-weight:800;font-size:15px;margin-bottom:3px}
+.brow .bl span{min-width:0}
+.brow .bl b{white-space:nowrap}
+.d{font-style:normal;font-size:13px;padding:0 6px;border-radius:8px;border:2px solid var(--ink)}
+.d.up{background:rgba(31,181,168,.35);color:var(--ink)} .d.down{background:rgba(255,107,94,.35);color:var(--ink)}
+.btrack{display:flex;height:32px;min-width:44px;background:rgba(35,42,77,.08);border:3px solid var(--ink);border-radius:12px;overflow:hidden}
+.seg{display:block;height:100%;transition:width .35s ease}
+.seg.base{background:var(--sun)} .seg.add{background:var(--teal)}
+.seg.cut{background:repeating-linear-gradient(45deg,var(--coral) 0 6px,#FFD6D1 6px 12px)}
+.brow.pop .btrack{animation:wipe .7s ease both}
+.bmwrap{position:absolute;left:3px;right:3px;top:0;bottom:26px;pointer-events:none}
+.bmark{position:absolute;top:0;bottom:0;border-left:3px dashed var(--ink)}
+.bmark span{position:absolute;bottom:-24px;left:0;transform:translateX(-50%);font-size:13px;font-weight:800;white-space:nowrap;background:var(--cream);border:2px solid var(--ink);border-radius:8px;padding:0 6px}
+
+.scene{display:flex;gap:14px;align-items:center;margin-bottom:10px}
+.scene .shoe{font-size:64px;line-height:1}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.mini{border:3px solid var(--ink);border-radius:14px;padding:8px;text-align:center}
+.mini.up{background:rgba(31,181,168,.3);color:var(--ink)} .mini.down{background:rgba(255,107,94,.3);color:var(--ink)}
+.mini small{display:block;font-weight:800}
+.mini b{font-size:21px}
+.mini span{display:block;font-weight:800}
+
+.lab{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:22px;align-items:start}
+.ctl{border:3px solid var(--ink);border-radius:16px;padding:12px;background:var(--cream)}
+.sl{margin:10px 0}
+.sl label{font-weight:800;display:block}
+input[type=range]{width:100%;height:34px;margin:0}
+.range-up{accent-color:var(--teal)} .range-down{accent-color:var(--coral)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.qbox{margin-top:16px;border-top:3px dashed var(--ink);padding-top:14px}
+
+.chain{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px}
+.chip{border:3px solid var(--ink);border-radius:12px;padding:0 10px;font-weight:800;background:var(--paper)}
+.chip.op.up{background:var(--teal);color:var(--ink)} .chip.op.down{background:var(--coral);color:var(--ink)}
+.arr{font-weight:800;color:var(--soft)}
+
+.done{text-align:center;padding:10px 0}
+.bigstars{font-size:54px;letter-spacing:6px;line-height:1.1}
+.done h3{font-size:32px;margin:6px 0}
+.done .lead2{font-size:19px;font-weight:700;max-width:560px;margin:10px auto}
+
+table.rec{width:100%;border-collapse:collapse;margin-top:10px;font-size:15px}
+table.rec th,table.rec td{border:3px solid var(--ink);padding:6px 10px;text-align:left;vertical-align:top}
+table.rec th{background:var(--sun);font-family:'Baloo 2',sans-serif}
+.tablewrap{overflow-x:auto}
+.formula{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+
+footer{text-align:center;color:var(--soft);font-weight:700;font-size:14px;padding:0 16px 30px}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
+
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes pop{50%{transform:scale(1.25)}}
+@keyframes bump{40%{transform:scale(1.2)}}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}40%{transform:translateY(-12px) rotate(-3deg)}70%{transform:translateY(0) rotate(2deg)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-14px) rotate(4deg)}}
+@keyframes wipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+
+@media(max-width:760px){
+  .split,.lab{grid-template-columns:1fr}
+  .tgl .lbl{display:none}
+  .title{font-size:28px}
+  .deco i:nth-child(1){font-size:80px}
+  .formula{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<noscript><p style="padding:20px;font-weight:800">Halaman ini membutuhkan JavaScript agar bisa dimainkan.</p></noscript>
+
+<header class="top">
+  <button class="brand" data-go="home" aria-label="Ke beranda"><span class="logo">%</span><span>Persen Petualangan</span></button>
+  <div class="hud">
+    <span class="pill" id="scorePill" title="Skor kamu">⭐ <b id="score">0</b></span>
+    <button class="tgl" id="tglMusic" aria-pressed="true" title="Nyalakan / matikan musik latar"><span class="ic">🎵</span><span class="lbl">Musik</span><span class="st">ON</span></button>
+    <button class="tgl" id="tglSfx" aria-pressed="true" title="Nyalakan / matikan efek suara"><span class="ic">🔊</span><span class="lbl">Efek</span><span class="st">ON</span></button>
+    <button class="tgl" id="tglTeacher" aria-pressed="false" title="Tampilkan catatan miskonsepsi untuk guru"><span class="ic">🎓</span><span class="lbl">Catatan Guru</span><span class="st">OFF</span></button>
+  </div>
+</header>
+
+<main>
+  <section class="screen active" id="s-home">
+    <div class="card hero">
+      <div class="deco" aria-hidden="true"><i>%</i><i>%</i><i>%</i></div>
+      <div class="coach"></div>
+      <h1>Persen<br><span class="hl">Petualangan</span></h1>
+      <p class="lead">Jelajahi persen lewat kotak, toko diskon, dan harga yang naik-turun. Tebak dulu, buktikan, lalu temukan polanya sendiri.</p>
+      <button class="btn big" id="btnStart">Mulai Petualangan ▶</button>
+      <p class="tiny">🎵 Musik dan 🔊 efek suara bisa dimatikan lewat tombol di pojok kanan atas.</p>
+    </div>
+  </section>
+
+  <section class="screen" id="s-map">
+    <h2 class="title">Peta Misi</h2>
+    <p class="sub">Pilih misi. Urutan terbaik: 1 → 2 → 3 → 4.</p>
+    <div class="coach"></div>
+    <div class="map" id="mapGrid"></div>
+    <div class="center"><button class="btn teal big" data-go="end">Lihat Hasil Akhir 🏆</button></div>
+  </section>
+
+  <section class="screen" id="s-m1"></section>
+  <section class="screen" id="s-m2"></section>
+  <section class="screen" id="s-m3"></section>
+  <section class="screen" id="s-m4"></section>
+  <section class="screen" id="s-end"></section>
+</main>
+
+<footer>Media pembelajaran matematika · Persentase · SMP</footer>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<script>
+(()=>{
+'use strict';
+
+/* ============ Alat bantu ============ */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const fmt=n=>String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+const rp=n=>(n<0?'−':'')+'Rp'+fmt(Math.abs(n));
+const dec=(n,d=2)=>{let s=(+n).toFixed(d);if(s.indexOf('.')>-1)s=s.replace(/0+$/,'').replace(/\.$/,'');return s.replace('.',',');};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const reduce=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+const store={
+  get(k,d){try{const v=localStorage.getItem('pp_'+k);return v===null?d:JSON.parse(v);}catch(e){return d;}},
+  set(k,v){try{localStorage.setItem('pp_'+k,JSON.stringify(v));}catch(e){}}
+};
+
+/* ============ Suara (dibuat dengan Web Audio, tanpa file audio) ============ */
+const SND={
+  ctx:null,mbus:null,sbus:null,noise:null,music:true,sfx:true,timer:null,nextT:0,step:0,running:false,lastTick:0,
+  sd:60/108/2,
+  MEL:[[76,0,79,76,74,0,72,0],[69,0,72,0,76,74,72,0],[77,0,81,77,76,0,72,0],[74,0,79,0,76,74,71,0]],
+  ROOT:[48,45,41,43],
+  init(){
+    if(this.ctx){if(this.ctx.state==='suspended')this.ctx.resume();return;}
+    const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+    try{this.ctx=new AC();}catch(e){return;}
+    const comp=this.ctx.createDynamicsCompressor();comp.connect(this.ctx.destination);
+    this.mbus=this.ctx.createGain();this.mbus.gain.value=0;this.mbus.connect(comp);
+    this.sbus=this.ctx.createGain();this.sbus.gain.value=0.9;this.sbus.connect(comp);
+    const len=Math.floor(this.ctx.sampleRate*0.2),buf=this.ctx.createBuffer(1,len,this.ctx.sampleRate),d=buf.getChannelData(0);
+    for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
+    this.noise=buf;
+  },
+  mtof(m){return 440*Math.pow(2,(m-69)/12);},
+  tone(f,t,d,type,v,bus,to){
+    const c=this.ctx,o=c.createOscillator(),g=c.createGain();
+    o.type=type;o.frequency.setValueAtTime(f,t);
+    if(to)o.frequency.exponentialRampToValueAtTime(to,t+d);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(v,t+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+    o.connect(g);g.connect(bus);o.start(t);o.stop(t+d+0.05);
+  },
+  hat(t,v){
+    const c=this.ctx,s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
+    s.buffer=this.noise;f.type='highpass';f.frequency.value=7000;
+    g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.0001,t+0.05);
+    s.connect(f);f.connect(g);g.connect(this.mbus);s.start(t);s.stop(t+0.06);
+  },
+  playStep(n,t){
+    const bar=Math.floor(n/8)%4,s=n%8,m=this.MEL[bar][s],r=this.ROOT[bar];
+    if(m)this.tone(this.mtof(m),t,this.sd*1.7,'triangle',0.2,this.mbus);
+    if(s===0||s===4)this.tone(this.mtof(r),t,this.sd*3,'square',0.07,this.mbus);
+    if(s===2||s===6)this.tone(this.mtof(r+7),t,this.sd*1.6,'square',0.05,this.mbus);
+    if(s%2===1)this.hat(t,0.05);
+  },
+  sched(){
+    const c=this.ctx;if(!c)return;
+    if(this.nextT<c.currentTime-0.3)this.nextT=c.currentTime+0.05;
+    while(this.nextT<c.currentTime+0.2){this.playStep(this.step,this.nextT);this.nextT+=this.sd;this.step=(this.step+1)%32;}
+  },
+  start(){
+    if(!this.ctx||this.running||!this.music)return;
+    this.running=true;this.nextT=this.ctx.currentTime+0.08;
+    this.mbus.gain.cancelScheduledValues(this.ctx.currentTime);
+    this.mbus.gain.setTargetAtTime(0.5,this.ctx.currentTime,0.1);
+    this.timer=setInterval(()=>this.sched(),50);
+  },
+  stop(){
+    clearInterval(this.timer);this.running=false;
+    if(this.ctx){this.mbus.gain.cancelScheduledValues(this.ctx.currentTime);this.mbus.gain.setTargetAtTime(0,this.ctx.currentTime,0.05);}
+  },
+  setMusic(on){this.music=on;store.set('music',on);if(on){this.init();this.start();}else this.stop();},
+  setSfx(on){this.sfx=on;store.set('sfx',on);},
+  play(k){
+    if(!this.sfx||!this.ctx||this.ctx.state!=='running')return;
+    const t=this.ctx.currentTime,b=this.sbus;
+    switch(k){
+      case 'click':this.tone(700,t,.06,'square',.1,b);break;
+      case 'pop':this.tone(480+Math.random()*220,t,.07,'sine',.22,b);break;
+      case 'tick':if(t-this.lastTick<.06)return;this.lastTick=t;this.tone(820,t,.04,'sine',.12,b);break;
+      case 'ok':[523,659,784,1047].forEach((f,i)=>this.tone(f,t+i*.08,.2,'triangle',.28,b));break;
+      case 'no':this.tone(260,t,.2,'sawtooth',.14,b,170);this.tone(190,t+.15,.28,'sawtooth',.14,b,120);break;
+      case 'reveal':this.tone(220,t,.4,'sine',.25,b,880);this.tone(660,t+.3,.15,'triangle',.2,b);break;
+      case 'win':[523,659,784,1047,784,1047,1319].forEach((f,i)=>this.tone(f,t+i*.11,.28,'triangle',.28,b));break;
+    }
+  }
+};
+SND.music=store.get('music',true);
+SND.sfx=store.get('sfx',true);
+
+const UNLOCK=['pointerdown','pointerup','touchend','keydown','click'];
+function unlock(){
+  SND.init();if(!SND.ctx)return;
+  const ok=()=>{
+    if(SND.ctx.state==='running'){
+      if(SND.music)SND.start();
+      UNLOCK.forEach(ev=>document.removeEventListener(ev,unlock,true));
+    }
+  };
+  if(SND.ctx.state==='running')ok();else SND.ctx.resume().then(ok).catch(()=>{});
+}
+UNLOCK.forEach(ev=>document.addEventListener(ev,unlock,true));
+document.addEventListener('visibilitychange',()=>{
+  if(!SND.ctx)return;
+  if(document.hidden)SND.stop();
+  else if(SND.music){SND.ctx.resume();SND.start();}
+});
+
+/* ============ Konfeti ============ */
+const cv=$('#confetti'),cx=cv.getContext('2d');let parts=[],raf=0;
+function sizeCv(){const d=window.devicePixelRatio||1;cv.width=innerWidth*d;cv.height=innerHeight*d;cx.setTransform(d,0,0,d,0,0);}
+sizeCv();window.addEventListener('resize',sizeCv);
+function burst(x,y,n=44){
+  if(reduce)return;
+  const cols=['#FF6B5E','#FFC83D','#1FB5A8','#232A4D'];
+  for(let i=0;i<n;i++)parts.push({x,y,vx:(Math.random()-.5)*11,vy:-Math.random()*11-3,s:6+Math.random()*7,c:cols[i%4],r:Math.random()*6,vr:(Math.random()-.5)*.4,life:70+Math.random()*30});
+  if(!raf)raf=requestAnimationFrame(loop);
+}
+function loop(){
+  cx.clearRect(0,0,innerWidth,innerHeight);
+  parts=parts.filter(p=>p.life>0&&p.y<innerHeight+30);
+  parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.35;p.r+=p.vr;p.life--;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/3,p.s,p.s*.66);cx.restore();});
+  raf=parts.length?requestAnimationFrame(loop):0;
+  if(!raf)cx.clearRect(0,0,innerWidth,innerHeight);
+}
+function burstAt(el){const r=el.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2);}
+
+/* ============ Maskot "Persi" ============ */
+const MOUTH={happy:'M34 56 Q50 74 66 56',think:'M40 64 Q50 60 60 64',oops:'M37 68 Q50 54 63 68',wow:'M43 60 Q50 76 57 60 Q50 55 43 60'};
+function mascotSVG(){
+  return '<svg class="mascot" viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="95" rx="26" ry="4" fill="rgba(35,42,77,.18)"/>'+
+  '<path d="M50 14c26 0 42 18 42 42 0 22-16 36-42 36S8 78 8 56C8 32 24 14 50 14z" fill="#1FB5A8" stroke="#232A4D" stroke-width="4"/>'+
+  '<circle cx="50" cy="14" r="12" fill="#FFC83D" stroke="#232A4D" stroke-width="4"/>'+
+  '<text x="50" y="19" text-anchor="middle" font-size="15" font-weight="800" fill="#232A4D" font-family="Arial,sans-serif">%</text>'+
+  '<g class="eyes"><ellipse cx="36" cy="46" rx="6" ry="8" fill="#fff" stroke="#232A4D" stroke-width="3"/><ellipse cx="64" cy="46" rx="6" ry="8" fill="#fff" stroke="#232A4D" stroke-width="3"/><circle cx="37" cy="48" r="3" fill="#232A4D"/><circle cx="63" cy="48" r="3" fill="#232A4D"/></g>'+
+  '<path class="mouth" d="'+MOUTH.happy+'" fill="none" stroke="#232A4D" stroke-width="4" stroke-linecap="round"/>'+
+  '<circle cx="22" cy="62" r="5" fill="#FF6B5E" opacity=".6"/><circle cx="78" cy="62" r="5" fill="#FF6B5E" opacity=".6"/></svg>';
+}
+function initCoaches(){$$('.coach').forEach(c=>{if(!c.querySelector('svg'))c.innerHTML=mascotSVG()+'<p class="bubble" role="status"></p>';});}
+function say(t,mood){
+  const c=$('.screen.active .coach');if(!c)return;
+  $('.bubble',c).textContent=t;
+  $('.mouth',c).setAttribute('d',MOUTH[mood||'happy']);
+  const sv=$('svg',c);sv.classList.remove('bounce');void sv.getBoundingClientRect();sv.classList.add('bounce');
+}
+const PUJI=['Mantap!','Keren sekali!','Tepat sekali!','Kamu hebat!','Wah, pintar!'];
+
+/* ============ Data misi ============ */
+const MISSIONS=[
+ {n:1,icon:'🟨',title:'Kotak Seratus',desc:'Kenalan dengan arti “per seratus” dengan mewarnai kotak.',total:5,
+  teacher:{mis:'Persen dipahami sebagai angka biasa, bukan sebagai bagian dari keseluruhan (misalnya 7 dari 100 kotak dibaca 70% atau 0,7%).',
+           how:'Siswa mewarnai kotak sehingga 1 kotak = 1%. Pecahan, desimal, dan persen muncul bersamaan. Soal “baca gambar” sengaja memancing salah baca 35% / 3,5% / 53% agar kesalahan itu muncul lalu dikoreksi.'},
+  takeaway:'1% artinya 1 dari 100 bagian. Persen selalu bercerita tentang bagian dari sebuah keseluruhan.'},
+ {n:2,icon:'🛍️',title:'Persen dari Apa?',desc:'Persen yang sama, barang berbeda. Apakah jumlahnya sama?',total:3,
+  teacher:{mis:'Persen yang sama (atau lebih besar) dianggap selalu menghasilkan jumlah yang sama (atau lebih besar), tanpa melihat keseluruhan atau basisnya.',
+           how:'Satu pengatur persen menggerakkan tiga batang dengan keseluruhan berbeda, sehingga siswa melihat persen yang sama menghasilkan jumlah berbeda. Soal sesudahnya membandingkan persen kecil dari basis besar dengan persen besar dari basis kecil.'},
+  takeaway:'Persen yang sama dari keseluruhan yang berbeda menghasilkan jumlah yang berbeda. Selalu tanyakan: persen dari apa?'},
+ {n:3,icon:'📈',title:'Naik Turun Misterius',desc:'Naik 20% lalu turun 20%. Kembali ke harga awal?',total:4,
+  teacher:{mis:'Kenaikan dan penurunan persentase dengan angka yang sama dianggap saling menghapus.',
+           how:'Siswa menebak dulu agar miskonsepsi muncul, lalu dihadapkan pada bukti batang yang menunjukkan basis persentase berubah (Rp100.000 menjadi Rp120.000). Di lab, siswa memeriksa banyak pasangan persen, lalu menemukan sendiri persen kenaikan yang dibutuhkan agar harga kembali.'},
+  takeaway:'Setelah harga berubah, keseluruhannya (basis) ikut berubah. Naik 20% lalu turun 20% menghasilkan 1,2 × 0,8 = 0,96, bukan 1.'},
+ {n:4,icon:'🕵️',title:'Detektif Diskon',desc:'Fakta atau mitos? Uji pernyataan seputar persen.',total:5,
+  teacher:{mis:'Generalisasi miskonsepsi ke situasi lain: diskon bertingkat dijumlahkan, dan naik-turun dengan persen sama dianggap kembali ke awal.',
+           how:'Siswa memutuskan fakta atau mitos, lalu rantai pengali memperlihatkan perhitungan sebenarnya. Dua pernyataan fakta (urutan tidak berpengaruh; naik 100% lalu turun 50%) mencegah siswa menyimpulkan “selalu tidak kembali”.'},
+  takeaway:'Naik p% berarti dikali (1 + p/100), turun p% berarti dikali (1 − p/100). Kalikan pengalinya, jangan menjumlahkan persennya.'}
+];
+const MAXPTS=MISSIONS.reduce((a,m)=>a+m.total*10,0);
+
+/* ============ Status permainan ============ */
+const res={};let cur=null;
+function totalScore(){let t=0;for(const k in res){if(cur&&+k===cur.n)continue;t+=res[k].pts;}if(cur)t+=cur.pts;return t;}
+function showScore(bump){
+  $('#score').textContent=totalScore();
+  if(bump&&!reduce){const p=$('#scorePill');p.classList.remove('bump');void p.offsetWidth;p.classList.add('bump');}
+}
+function begin(n){cur={n,items:0,first:0,pts:0,done:false};setDots();showScore();}
+function setDots(){
+  if(!cur)return;const m=MISSIONS[cur.n-1],d=$('#dots'+cur.n);if(!d)return;
+  d.innerHTML='';
+  for(let i=0;i<m.total;i++){const x=document.createElement('i');if(i<cur.items)x.className='done';d.appendChild(x);}
+  d.setAttribute('aria-label','Progres: '+cur.items+' dari '+m.total);
+}
+function record(first,pts){cur.items++;if(first)cur.first++;cur.pts+=pts;setDots();showScore(true);}
+function finish(){
+  const n=cur.n,m=MISSIONS[n-1];
+  const ratio=cur.items?cur.first/cur.items:0,stars=ratio>=.8?3:ratio>=.5?2:1;
+  cur.done=true;res[n]={stars,pts:cur.pts};showScore(true);
+  SND.play('win');burst(innerWidth/2,innerHeight/3,90);
+  say('Misi selesai! Kamu hebat!','wow');
+  $('#m'+n+'body').innerHTML=
+   '<div class="done"><div class="bigstars" aria-label="'+stars+' dari 3 bintang">'+'⭐'.repeat(stars)+'☆'.repeat(3-stars)+'</div>'+
+   '<h3>Misi '+n+' selesai!</h3><p class="lead2">'+m.takeaway+'</p>'+
+   '<p><b>'+cur.pts+'</b> poin · '+cur.first+' dari '+cur.items+' jawaban benar di percobaan pertama</p>'+
+   '<div class="row center"><button class="btn ghost" data-go="map">Peta</button><button class="btn ghost" id="retry">Ulangi ↺</button>'+
+   '<button class="btn teal" id="nextM">'+(n<4?'Misi '+(n+1)+' ▶':'Lihat hasil akhir 🏆')+'</button></div></div>';
+  const box=$('#m'+n+'body');
+  $('#retry',box).onclick=()=>starters[n]();
+  $('#nextM',box).onclick=()=>go(n<4?'m'+(n+1):'end');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ============ Komponen: kuis pilihan ganda ============ */
+function quiz(box,q,done){
+  let tries=0;
+  box.innerHTML='<div>'+q.html+'</div><div class="opts"></div><div class="fbwrap" aria-live="polite"></div>';
+  const wrap=$('.opts',box),fbw=$('.fbwrap',box);
+  q.opts.forEach(o=>{
+    const b=document.createElement('button');b.type='button';b.className='opt';b.innerHTML=o.t;wrap.appendChild(b);
+    b.addEventListener('click',()=>{
+      if(b.disabled)return;
+      if(o.ok){
+        b.classList.add('ok');$$('.opt',wrap).forEach(x=>x.disabled=true);
+        SND.play('ok');burstAt(b);say(pick(PUJI),'happy');
+        fbw.innerHTML='<div class="fb ok"><b>✅ Tepat!</b> '+q.why+'</div>'+(typeof q.extra==='function'?q.extra():(q.extra||''));
+        done(tries===0);
+      }else{
+        tries++;b.classList.add('no');b.disabled=true;SND.play('no');say('Hampir! Coba lagi ya.','oops');
+        fbw.innerHTML='<div class="fb no"><b>🤔 Belum tepat.</b> '+(q.hint||'Coba pikirkan lagi.')+'</div>';
+      }
+    });
+  });
+}
+function miniBars(rows,f){
+  f=f||rp;const max=Math.max.apply(null,rows.map(r=>r.v));
+  return '<div class="bars mini">'+rows.map(r=>'<div class="brow"><div class="bl"><span>'+r.l+'</span><b>'+f(r.v)+'</b></div><div class="btrack"><span class="seg base" style="width:'+(r.v/max*100)+'%"></span></div></div>').join('')+'</div>';
+}
+function chain(a){
+  return '<div class="chain">'+a.map(x=>/^×/.test(x)?'<span class="chip op '+(parseFloat(x.slice(1).replace(',','.'))>=1?'up':'down')+'">'+x+'</span>':'<span class="chip">'+x+'</span>').join('<span class="arr">→</span>')+'</div>';
+}
+
+/* ============ Komponen: batang perubahan harga ============ */
+function renderBars(el,cfg){
+  let v=cfg.start;
+  const rows=[{l:'Harga awal',val:v,tot:v,segs:[{c:'base',v:v}]}];
+  cfg.steps.forEach(s=>{
+    const prev=v,d=prev*s.pct/100;
+    if(s.type==='up'){v=prev+d;rows.push({l:'Naik '+s.pct+'% dari '+rp(prev),dl:'+'+rp(d),k:'up',val:v,tot:v,segs:[{c:'base',v:prev},{c:'add',v:d}]});}
+    else{v=prev-d;rows.push({l:'Turun '+s.pct+'% dari '+rp(prev),dl:'−'+rp(d),k:'down',val:v,tot:prev,segs:[{c:'base',v:v},{c:'cut',v:d}]});}
+  });
+  const vis=rows.slice(0,cfg.show||rows.length);
+  const max=Math.max.apply(null,[cfg.start].concat(vis.map(r=>r.tot)))*1.05;
+  el.innerHTML='<div class="bars">'+vis.map((r,i)=>
+    '<div class="brow'+(cfg.animate===i?' pop':'')+'"><div class="bl"><span>'+r.l+(r.dl?' <em class="d '+r.k+'">'+r.dl+'</em>':'')+'</span><b>'+rp(r.val)+'</b></div>'+
+    '<div class="btrack">'+r.segs.map(s=>'<span class="seg '+s.c+'" style="width:'+(s.v/max*100)+'%"></span>').join('')+'</div></div>').join('')+
+    (cfg.marker?'<div class="bmwrap"><div class="bmark" style="left:'+(cfg.start/max*100)+'%"><span>harga awal</span></div></div>':'')+'</div>';
+  return {final:v,rows};
+}
+
+/* ============ Kerangka tiap misi ============ */
+function shell(m){
+  $('#s-m'+m.n).innerHTML=
+   '<div class="mhead"><button class="btn small ghost" data-go="map">← Peta</button>'+
+   '<h2><span class="mnum">'+m.n+'</span>'+m.title+'</h2><div class="dots" id="dots'+m.n+'"></div></div>'+
+   '<div class="coach"></div>'+
+   '<div class="teacher"><h4>🎓 Catatan Guru</h4><p><b>Miskonsepsi yang diantisipasi:</b> '+m.teacher.mis+'</p><p><b>Bagaimana aktivitas ini mencegahnya:</b> '+m.teacher.how+'</p></div>'+
+   '<div class="card" id="m'+m.n+'body"></div>';
+}
+
+/* ============ MISI 1: Kotak Seratus ============ */
+function startM1(){
+  begin(1);say('Yuk kenalan dulu dengan persen. Seret di kotak untuk mewarnai!','happy');
+  const body=$('#m1body');
+  body.innerHTML='<div class="split"><div><div class="pgrid" id="pgrid" role="group" aria-label="Seratus kotak kecil. Seret untuk mewarnai."></div>'+
+   '<div class="qbtns" id="qbtns"><button class="btn small ghost" data-add="-10">−10</button><button class="btn small ghost" data-add="-1">−1</button><button class="btn small ghost" data-add="1">+1</button><button class="btn small ghost" data-add="10">+10</button><button class="btn small ghost" data-add="clear">Hapus</button></div></div>'+
+   '<div id="m1panel"></div></div>';
+  const grid=$('#pgrid'),cells=[];
+  for(let i=0;i<100;i++){const c=document.createElement('div');c.className='cell';grid.appendChild(c);cells.push(c);}
+  const st={mode:'explore',round:0,tries:0,read:0};
+  const count=()=>cells.filter(c=>c.classList.contains('on')).length;
+  const fill=n=>cells.forEach((c,i)=>c.classList.toggle('on',i<n));
+  const setT=(id,t)=>{const e=$('#'+id);if(e)e.textContent=t;};
+  function changed(){const n=count();setT('rPct',n);setT('rCount',n+' dari 100');setT('rFrac',n+'/100');setT('rDec',dec(n/100,2));setT('pCount',n);}
+  function apply(c,on){if(c.classList.contains('on')!==on){c.classList.toggle('on',on);SND.play('pop');changed();}}
+  let drag=null;
+  grid.addEventListener('pointerdown',e=>{
+    if(st.mode!=='explore'&&st.mode!=='paint')return;
+    const c=e.target.closest('.cell');if(!c)return;
+    e.preventDefault();try{grid.setPointerCapture(e.pointerId);}catch(x){}
+    drag={on:!c.classList.contains('on')};apply(c,drag.on);
+  });
+  grid.addEventListener('pointermove',e=>{
+    if(!drag)return;
+    const el=document.elementFromPoint(e.clientX,e.clientY),c=el&&el.closest?el.closest('.cell'):null;
+    if(c&&grid.contains(c))apply(c,drag.on);
+  });
+  ['pointerup','pointercancel'].forEach(ev=>grid.addEventListener(ev,()=>{drag=null;}));
+  $('#qbtns').addEventListener('click',e=>{
+    const b=e.target.closest('[data-add]');if(!b||(st.mode!=='explore'&&st.mode!=='paint'))return;
+    const a=b.dataset.add,n=count();
+    fill(a==='clear'?0:Math.max(0,Math.min(100,n+(+a))));SND.play('pop');changed();
+  });
+  function scatter(n,seed){
+    const idx=[...Array(100).keys()];let s=seed;
+    for(let i=99;i>0;i--){s=(Math.imul(s,1103515245)+12345)&0x7fffffff;const j=s%(i+1);const t=idx[i];idx[i]=idx[j];idx[j]=t;}
+    const on=new Set(idx.slice(0,n));cells.forEach((c,i)=>c.classList.toggle('on',on.has(i)));
+  }
+  const panel=$('#m1panel');
+  function explore(){
+    st.mode='explore';grid.classList.remove('ro');$('#qbtns').hidden=false;
+    panel.innerHTML='<p class="tag">Kenalan dulu</p><h3 class="ask">Seratus kotak = 100%</h3>'+
+     '<p>Kotak besar ini terdiri atas <b>100 kotak kecil</b>. Semuanya = <b>100%</b>, jadi <b>1 kotak = 1%</b>. Coba warnai dengan menyeret jari atau kursormu.</p>'+
+     '<div class="bigp"><span id="rPct">0</span>%</div>'+
+     '<div class="readout"><div class="rbox"><small>Kotak berwarna</small><b id="rCount">0 dari 100</b></div><div class="rbox"><small>Pecahan</small><b id="rFrac">0/100</b></div><div class="rbox"><small>Desimal</small><b id="rDec">0</b></div></div>'+
+     '<p class="note">Persen berarti “per seratus”. Persen selalu bercerita tentang <b>bagian dari keseluruhan</b>.</p>'+
+     '<button class="btn teal" id="m1go">Mulai tantangan ▶</button>';
+    $('#m1go').onclick=()=>{fill(0);paint();};changed();
+  }
+  const rounds=[
+   {pct:25,txt:'Warnai <b>25%</b> dari seluruh kotak.',hint:'1 kotak = 1%. Jadi 25% berarti berapa kotak?',why:'25% = 25 dari 100 = 25/100 = 0,25.'},
+   {pct:60,txt:'Warnai <b>60%</b> dari seluruh kotak.',hint:'1 kotak = 1%. Jadi 60% berarti berapa kotak?',why:'60% = 60 dari 100 = 60/100 = 0,6.'},
+   {pct:75,txt:'Warnai <b>3/4</b> bagian dari seluruh kotak.',hint:'1/4 dari 100 kotak adalah 25 kotak. Jadi 3/4 adalah berapa kotak?',why:'3/4 = 75/100 = 75% = 0,75.'}
+  ];
+  function paint(){
+    st.mode='paint';st.tries=0;grid.classList.remove('ro');$('#qbtns').hidden=false;fill(0);
+    const r=rounds[st.round];
+    panel.innerHTML='<p class="tag">Tantangan '+(st.round+1)+' dari 3</p><h3 class="ask">'+r.txt+'</h3>'+
+     '<div class="rbox wide"><small>Kotak yang sudah kamu warnai</small><b><span id="pCount">0</span> kotak</b></div>'+
+     '<div id="m1fb" aria-live="polite"></div><div class="row"><button class="btn teal" id="m1check" data-nosound>Cek ✅</button><button class="btn" id="m1next" hidden>Lanjut ▶</button></div>';
+    $('#m1check').onclick=()=>{
+      const n=count();
+      if(n===r.pct){
+        SND.play('ok');burstAt(grid);say(pick(PUJI),'happy');
+        record(st.tries===0,st.tries===0?10:5);
+        $('#m1fb').innerHTML='<div class="fb ok"><b>✅ Tepat!</b> '+r.why+'</div>';
+        $('#m1check').hidden=true;$('#m1next').hidden=false;st.mode='locked';
+        $('#m1next').onclick=()=>{st.round++;if(st.round<rounds.length)paint();else reading();};
+      }else{
+        st.tries++;SND.play('no');say('Hampir! Hitung lagi ya.','oops');
+        $('#m1fb').innerHTML='<div class="fb no"><b>🤔 Belum tepat.</b> Kamu mewarnai '+n+' kotak = '+n+'%. '+r.hint+'</div>';
+      }
+    };
+    changed();
+  }
+  const reads=[
+   {n:35,seed:7,opts:[{t:'3,5%'},{t:'35%',ok:true},{t:'53%'}],why:'Ada 35 kotak berwarna dari 100 kotak, jadi 35/100 = 35%.',hint:'Hitung dulu ada berapa kotak yang berwarna, lalu bandingkan dengan 100 kotak seluruhnya.'},
+   {n:7,seed:21,opts:[{t:'70%'},{t:'0,7%'},{t:'7%',ok:true}],why:'7 kotak dari 100 kotak = 7/100 = 7%. Bukan 70%, karena 70% berarti 70 kotak.',hint:'Ingat: 1 kotak = 1%. Ada berapa kotak yang berwarna?'}
+  ];
+  function reading(){
+    st.mode='read';grid.classList.add('ro');$('#qbtns').hidden=true;
+    const r=reads[st.read];scatter(r.n,r.seed);
+    panel.innerHTML='<p class="tag">Baca gambar '+(st.read+1)+' dari 2</p><div id="m1q"></div><div class="row"><button class="btn" id="m1next" hidden>Lanjut ▶</button></div>';
+    say('Hitung dulu kotak berwarnanya, ya.','think');
+    quiz($('#m1q'),{html:'<h3 class="ask">Berapa persen bagian kotak yang berwarna?</h3>',opts:r.opts,why:r.why,hint:r.hint},first=>{
+      record(first,first?10:5);
+      const nx=$('#m1next');nx.hidden=false;nx.textContent=st.read<reads.length-1?'Gambar berikutnya ▶':'Selesai ▶';
+      nx.onclick=()=>{if(st.read<reads.length-1){st.read++;reading();}else finish();};
+    });
+  }
+  explore();
+}
+
+/* ============ MISI 2: Persen dari Apa? ============ */
+function startM2(){
+  begin(2);say('Persen yang sama belum tentu jumlah yang sama. Coba geser dan lihat!','think');
+  const body=$('#m2body');
+  const items=[{e:'🧢',n:'Topi',p:50000},{e:'🎧',n:'Headphone',p:200000},{e:'🎮',n:'Konsol game',p:400000}];
+  body.innerHTML='<div id="m2a"><p class="tag">Coba-coba dulu</p><h3 class="ask">Persen yang sama, barang yang berbeda</h3>'+
+   '<p>Panjang tiap batang menunjukkan <b>harga barang</b> (keseluruhannya). Bagian berwarna adalah persen yang kamu pilih.</p>'+
+   '<div class="sl"><label for="m2r">Persen: <b class="up" id="m2p">20</b>%</label><input id="m2r" class="range-up" type="range" min="0" max="100" step="5" value="20"></div>'+
+   '<div id="m2bars"></div><div class="callout" id="m2note" aria-live="polite"></div>'+
+   '<div class="row"><button class="btn teal" id="m2go">Uji pemahamanmu ▶</button></div></div>'+
+   '<div id="m2b" hidden><p class="tag" id="m2tag"></p><div id="m2q"></div><div class="row"><button class="btn" id="m2nx" hidden>Lanjut ▶</button></div></div>';
+  function draw(){
+    const p=+$('#m2r').value,max=400000;$('#m2p').textContent=p;
+    $('#m2bars').innerHTML='<div class="bars" style="padding-bottom:0">'+items.map(it=>
+      '<div class="brow"><div class="bl"><span>'+it.e+' '+it.n+' · '+rp(it.p)+'</span><b>'+rp(it.p*p/100)+'</b></div><div class="btrack" style="width:'+(it.p/max*100)+'%"><span class="seg add" style="width:'+p+'%"></span></div></div>').join('')+'</div>';
+    $('#m2note').innerHTML=p+'% dari Rp50.000 = <b>'+rp(50000*p/100)+'</b>, tetapi '+p+'% dari Rp400.000 = <b>'+rp(400000*p/100)+'</b>. Persennya sama, jumlahnya beda, karena <b>keseluruhannya berbeda</b>.';
+  }
+  $('#m2r').oninput=()=>{draw();SND.play('tick');};draw();
+  const Q=[
+   {html:'<h3 class="ask">Toko A memberi diskon <b>20%</b> untuk barang Rp50.000. Toko B memberi diskon <b>10%</b> untuk barang Rp400.000. Potongan harga (dalam rupiah) mana yang lebih besar?</h3>',
+    opts:[{t:'Toko A, karena persennya lebih besar'},{t:'Toko B',ok:true},{t:'Sama besar'}],
+    hint:'Persen besar belum tentu jumlah besar. Hitung dulu kedua potongannya dalam rupiah.',
+    why:'Toko A: 20% × Rp50.000 = Rp10.000. Toko B: 10% × Rp400.000 = Rp40.000. Persen kecil dari keseluruhan besar bisa menghasilkan jumlah lebih besar.',
+    extra:()=>miniBars([{l:'Toko A · 20% × Rp50.000',v:10000},{l:'Toko B · 10% × Rp400.000',v:40000}])},
+   {html:'<h3 class="ask">Rina menabung <b>50%</b> dari uang saku Rp20.000. Budi menabung <b>25%</b> dari uang saku Rp60.000. Siapa yang menabung lebih banyak?</h3>',
+    opts:[{t:'Budi',ok:true},{t:'Rina, karena 50% lebih besar dari 25%'},{t:'Sama banyak'}],
+    hint:'Cari tahu jumlah tabungan masing-masing dalam rupiah, jangan membandingkan persennya saja.',
+    why:'Rina: 50% × Rp20.000 = Rp10.000. Budi: 25% × Rp60.000 = Rp15.000.',
+    extra:()=>miniBars([{l:'Rina · 50% × Rp20.000',v:10000},{l:'Budi · 25% × Rp60.000',v:15000}])},
+   {html:'<h3 class="ask">Ani menjawab benar <b>80 dari 200</b> soal. Beni menjawab benar <b>45 dari 50</b> soal. Siapa yang persentase benarnya lebih tinggi?</h3>',
+    opts:[{t:'Ani, karena 80 lebih besar dari 45'},{t:'Sama saja'},{t:'Beni',ok:true}],
+    hint:'Jangan membandingkan angka mentah. Ubah keduanya ke persen: bagian ÷ keseluruhan × 100%.',
+    why:'Ani: 80 ÷ 200 = 40%. Beni: 45 ÷ 50 = 90%. Persen membuat dua keseluruhan yang berbeda bisa dibandingkan secara adil.',
+    extra:()=>miniBars([{l:'Ani · 80 dari 200',v:40},{l:'Beni · 45 dari 50',v:90}],v=>v+'%')}
+  ];
+  let qi=0;
+  function ask(){
+    $('#m2tag').textContent='Soal '+(qi+1)+' dari '+Q.length;$('#m2nx').hidden=true;
+    quiz($('#m2q'),Q[qi],first=>{
+      record(first,first?10:5);
+      const nx=$('#m2nx');nx.hidden=false;nx.textContent=qi<Q.length-1?'Soal berikutnya ▶':'Selesai ▶';
+    });
+  }
+  $('#m2go').onclick=()=>{$('#m2a').hidden=true;$('#m2b').hidden=false;ask();};
+  $('#m2nx').onclick=()=>{if(qi<Q.length-1){qi++;ask();}else finish();};
+}
+
+/* ============ MISI 3: Naik Turun Misterius ============ */
+function startM3(){
+  begin(3);say('Misi inti! Tebak dulu sebelum kita buktikan.','think');
+  const body=$('#m3body');
+  const st={guess:null,price:100000,up:20,dn:20,order:'ud',round:0,rec:false};
+  const GL={same:'Kembali ke Rp100.000',more:'Lebih mahal dari Rp100.000',less:'Lebih murah dari Rp100.000'};
+
+  function A(){
+    body.innerHTML='<p class="tag">Langkah 1 · Tebak dulu!</p>'+
+     '<div class="scene"><div class="shoe" aria-hidden="true">👟</div><div><h3 class="ask">Sepatu seharga <b>Rp100.000</b></h3><p>Toko menaikkan harganya <b class="up">20%</b>, lalu memberi diskon <b class="down">20%</b>.</p></div></div>'+
+     '<h3 class="ask">Menurutmu, harga akhirnya…</h3>'+
+     '<div class="opts" id="m3g"><button class="opt" data-g="same">Kembali ke Rp100.000</button><button class="opt" data-g="more">Lebih mahal dari Rp100.000</button><button class="opt" data-g="less">Lebih murah dari Rp100.000</button></div>'+
+     '<div id="m3gfb" aria-live="polite"></div><div class="row"><button class="btn teal" id="m3open" hidden>Buka rahasianya! 🔍</button></div>';
+    $$('#m3g .opt').forEach(b=>b.onclick=()=>{
+      st.guess=b.dataset.g;$$('#m3g .opt').forEach(x=>x.disabled=true);b.classList.add('pick');SND.play('click');
+      $('#m3gfb').innerHTML='<div class="fb"><b>Tebakanmu tercatat:</b> “'+GL[st.guess]+'”. Sekarang kita buktikan!</div>';
+      $('#m3open').hidden=false;say('Tebakan dicatat! Kita buktikan dengan batang.','happy');
+    });
+    $('#m3open').onclick=B;
+  }
+
+  function B(){
+    let i=0;
+    body.innerHTML='<p class="tag">Langkah 2 · Buktikan dengan batang</p><div id="m3bars"></div><div class="callout" id="m3exp" aria-live="polite"></div><div class="row"><button class="btn teal" id="m3next">Lanjut ▶</button></div>';
+    const cfg={start:100000,steps:[{type:'up',pct:20},{type:'down',pct:20}]};
+    const S=[
+     {show:1,mood:'happy',say:'Kita mulai dari Rp100.000.',html:'<b>Mulai:</b> harga sepatu <b>Rp100.000</b>. Anggap ini <b>100%</b>, yaitu keseluruhan yang pertama.'},
+     {show:2,mood:'happy',say:'Naik 20% mudah dihitung.',html:'<b>Naik 20%:</b> 20% × Rp100.000 = <b class="up">Rp20.000</b>. Harga sekarang <b>Rp120.000</b>.'},
+     {show:3,mood:'think',say:'Awas! Keseluruhannya sudah berubah.',html:'<b>Turun 20%</b>, tetapi 20% dari apa? Harga sekarang Rp120.000, jadi yang dipotong adalah 20% × <b>Rp120.000</b> = <b class="down">Rp24.000</b>, bukan Rp20.000.'+
+       '<div class="two"><div class="mini up"><small>Naik 20% dari</small><b>Rp100.000</b><span>= Rp20.000</span></div><div class="mini down"><small>Turun 20% dari</small><b>Rp120.000</b><span>= Rp24.000</span></div></div>'},
+     {show:3,marker:true,mood:'wow',say:'Ternyata tidak kembali ke Rp100.000!',html:()=>{
+       const ok=st.guess==='less';
+       if(!st.rec){st.rec=true;record(ok,ok?10:0);}
+       return '<b>Harga akhir: Rp96.000.</b> Masih kurang <b class="down">Rp4.000</b> dari harga awal. Persennya sama (20%), tetapi <b>keseluruhannya berbeda</b>: Rp100.000 untuk kenaikan, Rp120.000 untuk penurunan.'+
+        '<div class="fb '+(ok?'ok':'')+'">'+(ok?'✅ Tebakanmu tadi tepat!':'Tebakanmu tadi: “'+GL[st.guess]+'”. Tidak apa-apa, banyak orang mengira harganya kembali. Sekarang kita tahu alasannya.')+'</div>';
+     }}
+    ];
+    function draw(anim){
+      const s=S[i];
+      renderBars($('#m3bars'),{start:cfg.start,steps:cfg.steps,show:s.show,marker:!!s.marker,animate:anim?s.show-1:null});
+      $('#m3exp').innerHTML=typeof s.html==='function'?s.html():s.html;
+      say(s.say,s.mood);if(anim)SND.play('reveal');
+      $('#m3next').textContent=i<S.length-1?'Lanjut ▶':'Coba sendiri di lab 🧪';
+    }
+    $('#m3next').onclick=()=>{if(i<S.length-1){const was=S[i].show;i++;draw(S[i].show>was);}else C();};
+    draw(false);
+  }
+
+  function C(){
+    st.order='ud';
+    body.innerHTML='<p class="tag">Langkah 3 · Laboratorium persen</p>'+
+     '<p>Ubah angkanya sesuka hati dan amati hasilnya. Cobalah persen naik yang <b>sama</b> dengan persen turun, lalu cobalah pasangan yang lain.</p>'+
+     '<div class="lab"><div class="ctl">'+
+      '<div class="chips" role="group" aria-label="Harga awal"><button class="btn small" data-p="100000" aria-pressed="true">Rp100.000</button><button class="btn small ghost" data-p="250000" aria-pressed="false">Rp250.000</button><button class="btn small ghost" data-p="1000000" aria-pressed="false">Rp1.000.000</button></div>'+
+      '<div class="sl"><label for="rUp">Naik <b class="up" id="lUp">'+st.up+'</b>%</label><input id="rUp" class="range-up" type="range" min="0" max="100" step="5" value="'+st.up+'"></div>'+
+      '<div class="sl"><label for="rDn">Turun <b class="down" id="lDn">'+st.dn+'</b>%</label><input id="rDn" class="range-down" type="range" min="0" max="100" step="5" value="'+st.dn+'"></div>'+
+      '<div class="chips"><button class="btn small" id="oUD" aria-pressed="true">Naik dulu → turun</button><button class="btn small ghost" id="oDU" aria-pressed="false">Turun dulu → naik</button></div>'+
+     '</div><div><div id="m3lab"></div><div class="callout" id="m3calc" aria-live="polite"></div></div></div>'+
+     '<div class="row"><button class="btn teal" id="m3ask">Aku siap menjawab ▶</button></div><div id="m3q" class="qbox" hidden></div><div class="row"><button class="btn" id="m3toD" hidden>Ke tantangan terakhir ▶</button></div>';
+    say('Coba naik dan turun dengan persen yang sama!','think');
+    function draw(){
+      const steps=st.order==='ud'?[{type:'up',pct:st.up},{type:'down',pct:st.dn}]:[{type:'down',pct:st.dn},{type:'up',pct:st.up}];
+      const r=renderBars($('#m3lab'),{start:st.price,steps,marker:true});
+      const diff=r.final-st.price,mult=(1+st.up/100)*(1-st.dn/100);
+      let msg;
+      if(Math.abs(diff)<0.5){msg=(st.up===0&&st.dn===0)?'Tidak ada perubahan (0% dan 0%).':'Kembali persis ke '+rp(st.price)+'! Perhatikan: persen naik ('+st.up+'%) dan persen turun ('+st.dn+'%) <b>berbeda</b>.';}
+      else if(diff<0){msg='Harga akhir <b class="down">'+rp(Math.abs(diff))+' lebih murah</b> dari harga awal.'+(st.up===st.dn?' Persennya sama, tetapi harga tidak kembali!':'');}
+      else{msg='Harga akhir <b class="up">'+rp(diff)+' lebih mahal</b> dari harga awal.';}
+      $('#m3calc').innerHTML=msg+'<br>Pengali: '+dec(1+st.up/100,2)+' × '+dec(1-st.dn/100,2)+' = <b>'+dec(mult,4)+'</b> → harga akhir '+dec(mult*100,2)+'% dari harga awal.';
+    }
+    $$('.chips [data-p]').forEach(b=>b.onclick=()=>{st.price=+b.dataset.p;$$('.chips [data-p]').forEach(x=>{const on=x===b;x.setAttribute('aria-pressed',String(on));x.classList.toggle('ghost',!on);});draw();});
+    $('#rUp').oninput=e=>{st.up=+e.target.value;$('#lUp').textContent=st.up;SND.play('tick');draw();};
+    $('#rDn').oninput=e=>{st.dn=+e.target.value;$('#lDn').textContent=st.dn;SND.play('tick');draw();};
+    const ord=o=>{st.order=o;$('#oUD').setAttribute('aria-pressed',String(o==='ud'));$('#oDU').setAttribute('aria-pressed',String(o==='du'));$('#oUD').classList.toggle('ghost',o!=='ud');$('#oDU').classList.toggle('ghost',o!=='du');draw();};
+    $('#oUD').onclick=()=>ord('ud');$('#oDU').onclick=()=>ord('du');
+    draw();
+    $('#m3ask').onclick=()=>{
+      $('#m3ask').hidden=true;const q=$('#m3q');q.hidden=false;
+      quiz(q,{html:'<h3 class="ask">Kalau persen naik dan persen turunnya <u>sama</u> (bukan 0%), apa yang terjadi pada harga akhir?</h3>',
+        opts:[{t:'Selalu kembali ke harga awal'},{t:'Selalu lebih murah dari harga awal',ok:true},{t:'Selalu lebih mahal dari harga awal'}],
+        why:'Pengalinya (1 + p)(1 − p) = 1 − p², selalu kurang dari 1. Penurunan dihitung dari harga yang <b>sudah naik</b>, jadi potongannya lebih besar daripada tambahannya.',
+        hint:'Gunakan lab di atas: geser persen naik dan turun ke angka yang sama (misalnya 10%, 30%, 50%), lalu lihat hasilnya.'},
+        first=>{record(first,first?10:5);$('#m3toD').hidden=false;});
+    };
+    $('#m3toD').onclick=()=>{st.round=0;D();};
+  }
+
+  const rounds=[{dn:20},{dn:50}];
+  function D(){
+    const r=rounds[st.round];let tries=0;
+    const after=100000*(1-r.dn/100);
+    body.innerHTML='<p class="tag">Langkah 4 · Tantangan “kembali modal” ('+(st.round+1)+' dari 2)</p>'+
+     '<h3 class="ask">Harga sepatu Rp100.000 <b class="down">turun '+r.dn+'%</b> menjadi <b>'+rp(after)+'</b>.</h3>'+
+     '<p>Berapa persen harga harus <b class="up">naik</b> supaya <b>kembali ke Rp100.000</b>?</p>'+
+     '<div class="sl"><label for="rBack">Naik <b class="up" id="lBack">0</b>%</label><input id="rBack" class="range-up" type="range" min="0" max="150" step="1" value="0"></div>'+
+     '<div id="m3back"></div><div id="m3bfb" aria-live="polite"></div>'+
+     '<div class="row"><button class="btn teal" id="m3chk" data-nosound>Cek jawabanku ✅</button><button class="btn" id="m3nx" hidden>Lanjut ▶</button></div>';
+    say('Geser sampai batangnya tepat di garis putus-putus.','think');
+    const draw=()=>{const p=+$('#rBack').value;$('#lBack').textContent=p;renderBars($('#m3back'),{start:100000,steps:[{type:'down',pct:r.dn},{type:'up',pct:p}],marker:true});};
+    $('#rBack').oninput=()=>{SND.play('tick');draw();};draw();
+    $('#m3chk').onclick=()=>{
+      const p=+$('#rBack').value,fin=after*(1+p/100);
+      if(Math.abs(fin-100000)<1){
+        SND.play('ok');burstAt($('#m3back'));say(pick(PUJI),'happy');
+        record(tries===0,tries===0?10:5);
+        const need=1/(1-r.dn/100);
+        $('#m3bfb').innerHTML='<div class="fb ok"><b>✅ Tepat!</b> Turun '+r.dn+'% berarti dikali '+dec(1-r.dn/100,2)+'. Agar kembali ke 1 dibutuhkan pengali '+dec(need,2)+', yaitu naik <b>'+p+'%</b>'+(r.dn===20?', bukan 20%!':'.')+'</div>';
+        $('#m3chk').hidden=true;$('#rBack').disabled=true;
+        const nx=$('#m3nx');nx.hidden=false;nx.textContent=st.round<rounds.length-1?'Tantangan berikutnya ▶':'Selesai ▶';
+        nx.onclick=()=>{if(st.round<rounds.length-1){st.round++;D();}else finish();};
+      }else{
+        tries++;SND.play('no');say('Belum pas. Perhatikan batangnya!','oops');
+        $('#m3bfb').innerHTML='<div class="fb no"><b>🤔 Belum tepat.</b> Naik '+p+'% dari '+rp(after)+' = '+rp(after*p/100)+', jadi harganya '+rp(fin)+'. '+
+          (fin<100000?'Masih kurang '+rp(100000-fin)+'. ':'Kelebihan '+rp(fin-100000)+'. ')+
+          (p===r.dn?'Harga sudah turun, jadi keseluruhan untuk kenaikan ini lebih kecil.':'')+'</div>';
+      }
+    };
+  }
+  A();
+}
+
+/* ============ MISI 4: Detektif Diskon ============ */
+function startM4(){
+  begin(4);say('Fakta atau mitos? Putuskan, lalu cek hitungannya.','think');
+  const body=$('#m4body');
+  const S=[
+   {t:'Harga baju naik 10%, lalu turun 10%. Harganya <b>kembali</b> ke harga awal.',fact:false,
+    why:'Naik 10% membuat harga Rp110.000. Turun 10% dari Rp110.000 hanya memotong Rp11.000, jadi harganya Rp99.000, kurang Rp1.000 dari awal.',
+    ch:[['Rp100.000','×1,1','Rp110.000','×0,9','Rp99.000']]},
+   {t:'Harga naik 20% lalu turun 20% memberi hasil yang <b>sama</b> dengan turun 20% lalu naik 20%.',fact:true,
+    why:'Perkalian tidak terpengaruh urutan: 1,2 × 0,8 = 0,8 × 1,2 = 0,96. Urutan tidak mengubah hasil, tetapi hasilnya tetap bukan Rp100.000.',
+    ch:[['Rp100.000','×1,2','Rp120.000','×0,8','Rp96.000'],['Rp100.000','×0,8','Rp80.000','×1,2','Rp96.000']]},
+   {t:'Diskon 20% disusul diskon tambahan 10% sama saja dengan <b>diskon 30%</b>.',fact:false,
+    why:'Diskon kedua dihitung dari harga yang sudah turun (Rp80.000), bukan dari Rp100.000. Total potongannya Rp28.000, jadi diskon totalnya 28%.',
+    ch:[['Rp100.000','×0,8','Rp80.000','×0,9','Rp72.000']]},
+   {t:'Harga naik <b>100%</b> lalu turun <b>50%</b>. Harganya kembali ke harga awal.',fact:true,
+    why:'Naik 100% membuat harga 2 kali lipat. Turun 50% dari Rp200.000 adalah Rp100.000, jadi kembali. Perhatikan: persen naik dan persen turunnya berbeda.',
+    ch:[['Rp100.000','×2','Rp200.000','×0,5','Rp100.000']]},
+   {t:'Harga turun 50% lalu naik 50%. Harganya kembali ke harga awal.',fact:false,
+    why:'Turun 50% membuat harga Rp50.000. Naik 50% dari Rp50.000 hanya menambah Rp25.000, jadi harganya Rp75.000. Agar kembali, harga harus naik 100%.',
+    ch:[['Rp100.000','×0,5','Rp50.000','×1,5','Rp75.000']]}
+  ];
+  let i=0;
+  function card(){
+    const s=S[i];
+    body.innerHTML='<p class="tag">Pernyataan '+(i+1)+' dari '+S.length+'</p><div class="stmt"><p>'+s.t+'</p></div>'+
+     '<div class="row center" id="m4btn"><button class="btn teal big" data-a="1" data-nosound>Fakta ✅</button><button class="btn coral big" data-a="0" data-nosound>Mitos ❌</button></div>'+
+     '<div id="m4fb" aria-live="polite"></div><div class="row"><button class="btn" id="m4nx" hidden>Lanjut ▶</button></div>';
+    $$('#m4btn .btn').forEach(b=>b.onclick=()=>{
+      const ok=(b.dataset.a==='1')===s.fact;
+      $$('#m4btn .btn').forEach(x=>x.disabled=true);
+      if(ok){SND.play('ok');burstAt(b);say(pick(PUJI),'happy');}else{SND.play('no');say('Tidak apa-apa. Lihat hitungannya!','oops');}
+      record(ok,ok?10:0);
+      $('#m4fb').innerHTML='<div class="fb '+(ok?'ok':'no')+'"><b>'+(ok?'✅ Tepat!':'🤔 Belum tepat.')+'</b> Pernyataan ini <b>'+(s.fact?'FAKTA':'MITOS')+'</b>. '+s.why+s.ch.map(chain).join('')+'</div>';
+      const nx=$('#m4nx');nx.hidden=false;nx.textContent=i<S.length-1?'Berikutnya ▶':'Selesai ▶';
+      nx.onclick=()=>{if(i<S.length-1){i++;card();}else finish();};
+    });
+  }
+  card();
+}
+
+/* ============ Peta & hasil akhir ============ */
+function buildMap(){
+  $('#mapGrid').innerHTML=MISSIONS.map(m=>{
+    const r=res[m.n],stars=r?'⭐'.repeat(r.stars)+'☆'.repeat(3-r.stars):'☆☆☆';
+    return '<button class="card mcard" data-go="m'+m.n+'"><span class="micon" aria-hidden="true">'+m.icon+'</span><span class="mt"><small>Misi '+m.n+'</small><b>'+m.title+'</b></span><span class="md">'+m.desc+'</span><span class="ms" aria-label="'+(r?r.stars:0)+' dari 3 bintang">'+stars+'</span></button>';
+  }).join('');
+}
+function buildEnd(){
+  const keys=Object.keys(res),stars=keys.reduce((a,k)=>a+res[k].stars,0),all=keys.length===MISSIONS.length;
+  const title=!all?'Petualang Persen 🌱':stars>=11?'Master Persen 🏆':stars>=8?'Detektif Persen 🕵️':'Petualang Persen 🌱';
+  $('#s-end').innerHTML=
+   '<h2 class="title">Hasil Akhir</h2><div class="coach"></div>'+
+   '<div class="card"><div class="done"><div class="bigstars">'+'⭐'.repeat(Math.min(3,Math.round(stars/4)))+'</div><h3>'+title+'</h3>'+
+   '<p class="lead2">Skor: <b>'+totalScore()+'</b> dari '+MAXPTS+' · Bintang: <b>'+stars+'</b> dari '+(MISSIONS.length*3)+'</p>'+
+   (all?'':'<p class="note">Selesaikan keempat misi untuk membuka gelar tertinggi.</p>')+'</div>'+
+   '<h3>Mitos yang sudah kamu patahkan</h3><div class="tablewrap"><table class="rec"><tr><th>Misi</th><th>Mitos</th><th>Yang benar</th></tr>'+
+   '<tr><td>1</td><td>Persen hanyalah angka biasa</td><td>1% = 1 dari 100 bagian keseluruhan</td></tr>'+
+   '<tr><td>2</td><td>Persen sama atau lebih besar berarti jumlah sama atau lebih besar</td><td>Jumlahnya bergantung pada keseluruhannya (basis)</td></tr>'+
+   '<tr><td>3</td><td>Naik 20% lalu turun 20% kembali ke awal</td><td>Hasilnya 96% dari harga awal, karena basisnya berubah</td></tr>'+
+   '<tr><td>4</td><td>Persen bisa dijumlahkan begitu saja</td><td>Kalikan pengalinya</td></tr></table></div>'+
+   '<div class="formula"><div class="mini up"><small>Naik p%</small><b>× (1 + p/100)</b><span>naik 20% → × 1,2</span></div><div class="mini down"><small>Turun p%</small><b>× (1 − p/100)</b><span>turun 20% → × 0,8</span></div></div>'+
+   '<div class="row center"><button class="btn ghost" data-go="map">Kembali ke peta</button><button class="btn teal" id="again">Main lagi dari awal ↺</button></div></div>';
+  initCoaches();
+  $('#again').onclick=()=>{for(const k in res)delete res[k];cur=null;showScore();go('map');};
+  say(all?'Kerja bagus! Kamu sudah jago persen.':'Ayo selesaikan misi yang tersisa!','wow');
+  if(all){SND.play('win');burst(innerWidth/2,innerHeight/3,90);}
+}
+
+/* ============ Navigasi ============ */
+const starters={1:startM1,2:startM2,3:startM3,4:startM4};
+function go(id){
+  cur=null;showScore();
+  $$('.screen').forEach(s=>s.classList.toggle('active',s.id==='s-'+id));
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='map'){buildMap();say('Pilih misi favoritmu!','happy');}
+  else if(id==='end')buildEnd();
+  else if(id==='home')say('Halo! Aku Persi. Yuk jelajahi dunia persen bersamaku!','happy');
+  else{const m=/^m(\d)$/.exec(id);if(m)starters[+m[1]]();}
+}
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]'),b=e.target.closest('.btn');
+  if(b&&!b.hasAttribute('data-nosound'))SND.play('click');
+  else if(g&&!b)SND.play('click');
+  if(g)go(g.dataset.go);
+});
+$('#btnStart').addEventListener('click',()=>go('map'));
+
+/* ============ Tombol musik, efek, dan catatan guru ============ */
+let teacher=store.get('teacher',false);
+const tm=$('#tglMusic'),ts=$('#tglSfx'),tt=$('#tglTeacher');
+function syncToggles(){
+  tm.setAttribute('aria-pressed',String(SND.music));$('.ic',tm).textContent=SND.music?'🎵':'🔕';$('.st',tm).textContent=SND.music?'ON':'OFF';
+  ts.setAttribute('aria-pressed',String(SND.sfx));$('.ic',ts).textContent=SND.sfx?'🔊':'🔇';$('.st',ts).textContent=SND.sfx?'ON':'OFF';
+  tt.setAttribute('aria-pressed',String(teacher));$('.st',tt).textContent=teacher?'ON':'OFF';
+  document.body.classList.toggle('teacher-on',teacher);
+}
+tm.addEventListener('click',()=>{SND.setMusic(!SND.music);syncToggles();});
+ts.addEventListener('click',()=>{SND.setSfx(!SND.sfx);syncToggles();if(SND.sfx){SND.init();SND.play('click');}});
+tt.addEventListener('click',()=>{teacher=!teacher;store.set('teacher',teacher);syncToggles();});
+
+/* ============ Mulai ============ */
+MISSIONS.forEach(shell);
+initCoaches();
+syncToggles();
+showScore();
+say('Halo! Aku Persi. Yuk jelajahi dunia persen bersamaku!','happy');
+})();
+</script>
+</body>
+</html>
